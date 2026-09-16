@@ -16,7 +16,6 @@ public class WalletController {
 
     @PostMapping("/transfers")
     public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest transferRequest) {
-        System.out.println(transferRequest);
         return ResponseEntity.ok(walletService.transfer(transferRequest));
     }
 
