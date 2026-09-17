@@ -565,10 +565,10 @@ src/main/java/com/example/wallettransfer
 ├── domain
 ├── repository
 └── service
-    ├── TransferService.java
+    ├── WalletService.java
     └── TransferTransactionService.java
 
-src/test/java/com/example/wallettransfer
+src/test/java/com/example/wallet
 └── TransferBehaviorIntegrationTest.java
 ```
 
@@ -590,7 +590,7 @@ Contains Spring Data JPA repositories and database access.
 
 Contains business logic and transaction orchestration.
 
-`TransferService` handles:
+`WalletService` handles:
 
 * Request validation
 * Idempotency checks
