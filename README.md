@@ -369,7 +369,7 @@ Reusing an existing idempotency key with different transfer parameters is reject
 ### Create Transfer
 
 ```http
-POST /transfers
+POST /wallet/v1/transfers
 ```
 
 Request:
@@ -386,7 +386,7 @@ Request:
 Example:
 
 ```bash
-curl -X POST http://localhost:8080/transfers \
+curl -X POST http://localhost:8080/wallet/v1/transfers \
   -H "Content-Type: application/json" \
   -d '{
     "idempotencyKey": "abc123",
