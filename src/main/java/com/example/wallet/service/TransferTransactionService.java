@@ -6,6 +6,7 @@ import com.example.wallet.domain.LedgerEntry;
 import com.example.wallet.domain.LedgerEntryType;
 import com.example.wallet.domain.Transfer;
 import com.example.wallet.domain.Wallet;
+import com.example.wallet.exception.WalletNotActiveException;
 import com.example.wallet.exception.WalletNotFoundException;
 import com.example.wallet.repository.LedgerEntryRepository;
 import com.example.wallet.repository.TransferRepository;
@@ -44,16 +45,19 @@ public class TransferTransactionService {
         String secondId = firstId.equals(transferRequest.fromWalletId())
             ? transferRequest.toWalletId() : transferRequest.fromWalletId();
 
-        Wallet first = wallets.findByIdForUpdate(firstId)
+        Wallet first = wallets.findByWalletId(firstId)
                 .orElseThrow(() ->
                         new WalletNotFoundException(firstId));
 
-        Wallet second = wallets.findByIdForUpdate(secondId)
+        Wallet second = wallets.findByWalletId(secondId)
                 .orElseThrow(() ->
                         new WalletNotFoundException(secondId));
 
         Wallet source = first.getWalletId().equals(transferRequest.fromWalletId()) ? first : second;
         Wallet destination = first.getWalletId().equals(transferRequest.toWalletId()) ? first : second;
+
+        // status validation
+        validateWalletStatus(source, destination);
 
         if (source.getBalance().compareTo(transferRequest.amount()) < 0) {
             transfer.markFailed();
@@ -70,5 +74,22 @@ public class TransferTransactionService {
         transfer.markProcessed();
         transfers.save(transfer);
         return TransferResponse.from(transfer);
+    }
+
+    private void validateWalletStatus(
+            Wallet source,
+            Wallet destination
+    ) {
+        if (!"ACTIVE".equals(source.getStatus())) {
+            throw new WalletNotActiveException(
+                    "Source wallet is not active: " + source.getWalletId()
+            );
+        }
+
+        if (!"ACTIVE".equals(destination.getStatus())) {
+            throw new WalletNotActiveException(
+                    "Destination wallet is not active: " + destination.getWalletId()
+            );
+        }
     }
 }
