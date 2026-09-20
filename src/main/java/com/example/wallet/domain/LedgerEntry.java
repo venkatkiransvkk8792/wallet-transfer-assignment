@@ -112,4 +112,30 @@ public class LedgerEntry {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public static LedgerEntry debit(
+            String walletId,
+            UUID transferId,
+            BigDecimal amount) {
+
+        return new LedgerEntry(
+                walletId,
+                transferId,
+                LedgerEntryType.DEBIT,
+                amount
+        );
+    }
+
+    public static LedgerEntry credit(
+            String walletId,
+            UUID transferId,
+            BigDecimal amount) {
+
+        return new LedgerEntry(
+                walletId,
+                transferId,
+                LedgerEntryType.CREDIT,
+                amount
+        );
+    }
 }

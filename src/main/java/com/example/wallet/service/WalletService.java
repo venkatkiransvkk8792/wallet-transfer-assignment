@@ -14,6 +14,8 @@ import com.example.wallet.repository.WalletRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class WalletService {
@@ -21,6 +23,8 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final TransferTransactionService transactionService;
     private final EntityManager entityManager;
+    private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
+
 
     public WalletService(TransferRepository transferRepository,
                          WalletRepository walletRepository,
@@ -34,9 +38,12 @@ public class WalletService {
 
     public WalletBalanceResponse getBalance(String walletId) {
 
+        logger.debug("Looking up wallet balance walletId={}", walletId);
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() ->
                         new WalletNotFoundException(walletId));
+
+        logger.debug("Fetched wallet balance with walletId={} balance={}", walletId, wallet.getBalance());
 
         return new WalletBalanceResponse(
                 wallet.getWalletId(),
@@ -53,6 +60,8 @@ public class WalletService {
             assertSameRequest(existing.get(), transferRequest);
             return TransferResponse.from(existing.get());
         }
+        logger.debug("No existing transfer found for idempotency key {}, processing new transfer",
+                transferRequest.idempotencyKey());
 
         try {
             return transactionService.processNew(transferRequest);
@@ -69,10 +78,12 @@ public class WalletService {
 
     private void validateRequest(TransferRequest r) {
         if (r.fromWalletId().equals(r.toWalletId())) {
+            logger.error("fromWalletId {} and toWalletId {} are same",r.fromWalletId(),r.toWalletId());
             throw new InvalidTransferException(
                     "fromWalletId and toWalletId must differ");
         }
         if (r.amount().scale() > 2) {
+            logger.error("amount {} value supported with at most 2 decimal places", r.amount());
             throw new ValidationException(
                     "amount supports at most 2 decimal places");
         }
@@ -83,8 +94,10 @@ public class WalletService {
         if (!t.getFromWalletId().equals(r.fromWalletId())
             || !t.getToWalletId().equals(r.toWalletId())
             || t.getAmount().compareTo(r.amount()) != 0) {
+            logger.error("Idempotency key {} was reused with different transfer parameters",r.idempotencyKey());
             throw new IdempotencyConflictException(
                     "Idempotency key was reused with different transfer parameters");
         }
+        logger.info("Idempotency key {} was reused with same transfer parameters so previous response returned",r.idempotencyKey());
     }
 }

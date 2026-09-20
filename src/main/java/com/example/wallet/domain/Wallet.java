@@ -98,6 +98,17 @@ public class Wallet {
         return updatedAt;
     }
 
+    // -------------------------
+    // Domain behavior
+    // -------------------------
+
+    public boolean isActive() {
+        return "ACTIVE".equals(status);
+    }
+
+    public boolean hasSufficientBalance(BigDecimal amount) {
+        return balance.compareTo(amount) >= 0;
+    }
     /**
      * Adds money to the wallet.
      */
