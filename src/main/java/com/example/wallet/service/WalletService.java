@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class WalletService  implements TransferProcessor{
+public class WalletService  implements TransferService {
     private final TransferRepository transferRepository;
     private final WalletRepository walletRepository;
     private final TransferTransactionService transactionService;
