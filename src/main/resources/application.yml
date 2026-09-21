@@ -4,8 +4,8 @@ spring:
     username: wallet
     password: wallet
   flyway:
-    enabled: false
-    locations: classpath:db/migration
+    enabled: true
+    locations: classpath:db/migrations
   jpa:
     hibernate:
       ddl-auto: validate
