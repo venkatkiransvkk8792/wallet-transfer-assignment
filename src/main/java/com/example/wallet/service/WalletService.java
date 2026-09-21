@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class WalletService {
+public class WalletService  implements TransferProcessor{
     private final TransferRepository transferRepository;
     private final WalletRepository walletRepository;
     private final TransferTransactionService transactionService;
@@ -26,7 +26,7 @@ public class WalletService {
     private static final Logger logger = LoggerFactory.getLogger(WalletService.class);
 
 
-    public WalletService(TransferRepository transferRepository,
+    public WalletService (TransferRepository transferRepository,
                          WalletRepository walletRepository,
                          TransferTransactionService transactionService,
                          EntityManager entityManager) {
@@ -50,9 +50,9 @@ public class WalletService {
                 wallet.getBalance());
     }
 
+    @Override
     public TransferResponse transfer(TransferRequest transferRequest) {
         validateRequest(transferRequest);
-
         // Fast path for normal retries. The unique DB constraint is still the
         // final authority when two requests with the same key race.
         var existing = transferRepository.findByIdempotencyKey(transferRequest.idempotencyKey());
@@ -76,7 +76,8 @@ public class WalletService {
         }
     }
 
-    private void validateRequest(TransferRequest r) {
+    @Override
+    public void validateRequest(TransferRequest r) {
         if (r.fromWalletId().equals(r.toWalletId())) {
             logger.error("fromWalletId {} and toWalletId {} are same",r.fromWalletId(),r.toWalletId());
             throw new InvalidTransferException(
