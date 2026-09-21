@@ -1,33 +1,41 @@
 package com.example.wallet.api;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
+@Schema(
+        description = "Request to transfer funds between two wallets"
+)
 public record TransferRequest(
 
-        @NotBlank(message = "idempotencyKey is required")
+        @Schema(
+                description = "Unique key used to make the request idempotent",
+                example = "transfer-12345"
+        )
+        @NotBlank
         String idempotencyKey,
 
-        @NotBlank(message = "fromWalletId is required")
+        @Schema(
+                description = "Wallet from which funds are transferred",
+                example = "wallet_1"
+        )
+        @NotBlank
         String fromWalletId,
 
-        @NotBlank(message = "toWalletId is required")
+        @Schema(
+                description = "Wallet receiving the funds",
+                example = "wallet_2"
+        )
+        @NotBlank
         String toWalletId,
 
-        @NotNull(message = "amount is required")
-        @DecimalMin(
-                value = "0.01",
-                message = "amount must be greater than zero"
+        @Schema(
+                description = "Amount to transfer",
+                example = "100.00"
         )
-        @Digits(
-                integer = 17,
-                fraction = 2,
-                message = "amount must have at most 17 integer digits and 2 decimal places"
-        )
+        @Positive
         BigDecimal amount
 ) {
 }

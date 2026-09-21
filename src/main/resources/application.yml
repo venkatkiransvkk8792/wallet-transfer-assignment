@@ -4,7 +4,7 @@ spring:
     username: wallet
     password: wallet
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migrations
   jpa:
     hibernate:
